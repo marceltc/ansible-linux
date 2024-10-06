@@ -1,0 +1,13 @@
+- name: Install latest basic editors and packages
+  ansible.builtin.dnf:
+    name:
+      - vim
+      - git
+      - dnf-automatic
+    state: latest
+
+- name: Ensure dnf-automatic is running/enabled
+  ansible.builtin.service:
+    name: dnf-automatic-install.timer
+    state: started
+    enabled: true

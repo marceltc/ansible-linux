@@ -1,0 +1,64 @@
+# Basic package setup
+- name: Install the correct packages for RHEL (dnf)
+  import_tasks: dnf.yaml
+  when: ansible_facts['os_family']|lower == 'redhat'
+
+- name: Install the correct package for Debian-based (apt)
+  import_tasks: apt.yaml
+  when: ansible_facts['os_family']|lower == 'debian'
+
+# User account configuration
+- name: Create new user(s)
+  ansible.builtin.user:
+    name: "{{ item }}"
+    state: present
+    create_home: yes
+  with_items:
+    - marcel
+
+- name: Add users to sudoers
+  ansible.builtin.lineinfile:
+    dest: /etc/sudoers
+    regexp: '^{{ item }}'
+    line: '{{ item }} ALL=(ALL) NOPASSWD: ALL'
+    state: present
+    validate: 'visudo -cf %s'
+  with_items:
+    - marcel
+
+- name: Copy user's authorized_keys from template
+  ansible.builtin.copy:
+    dest: '/home/{{ item }}/.ssh/authorized_keys'
+    src: '{{ item }}_authorized_keys'
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: 0600
+  with_items:
+    - marcel
+
+# SSH configuration
+- name: Disable password authentication
+  ansible.builtin.lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+    validate: 'sshd -t -f %s'
+  with_items:
+    - regexp: "^PasswordAuthentication"
+      line: "PasswordAuthentication no"
+    - regexp: "^PermitRootLogin"
+      line: "PermitRootLogin no"
+  notify: Restart ssh   # This handler runs only if change made
+
+# Dotfiles configuration
+- name: Copy .vimrc into place
+  ansible.builtin.copy:
+    dest: "{{ item }}/.vimrc"
+    src: ".vimrc"
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: 0644
+  # Users to be configured
+  with_items:
+    - marcel
