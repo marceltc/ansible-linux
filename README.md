@@ -1,4 +1,4 @@
-# Linux Ansible Configurations
+# Linux Ansible Collection
 
 >My personal Ansible playbooks and useful Ansible roles
 
