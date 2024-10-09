@@ -1,0 +1,40 @@
+{% if site.http.redirect %}
+# Redirect HTTP to HTTPS
+server {
+    listen 80 default_server;
+    listen[::]80;
+
+    server_name {{ site.fqdn }};
+
+    return 301 https://{{ site.fqdn }}$request_uri;
+}
+{% endif %}
+
+
+# generated 2024-10-09, Mozilla Guideline v5.7, nginx 1.17.7, OpenSSL 1.1.1k, modern configuration, no HSTS, no OCSP
+# https://ssl-config.mozilla.org/#server=nginx&version=1.17.7&config=modern&openssl=1.1.1k&hsts=false&ocsp=false&guideline=5.7
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+
+    server_name {{ site.fqdn }};
+    root /var/www/{{ site.fqdn }}/;
+
+    # Get real IP for Cloudflare (all connections)
+    set_real_ip_from 0.0.0.0/0;
+    set_real_ip_from ::/0;
+    real_ip_header CF-Connecting-IP;
+
+    # Cloudflare authenticated origin pull SSL setup
+    ssl_certificate /etc/ssl/certs/cloudflare_origin.crt;
+    ssl_certificate_key /etc/ssl/private/cloudflare_origin.key;
+    ssl_client_certificate /etc/ssl/certs/cloudflare_auth_origin_pull.crt;
+    ssl_verify_client {{ site.verify_cloudflare_cert }};
+    ssl_session_timeout 1d;
+    ssl_session_cache shared:MozSSL:10m;  # about 40000 sessions
+    ssl_session_tickets off;
+
+    # modern configuration
+    ssl_protocols TLSv1.3;
+    ssl_prefer_server_ciphers off;
+}

@@ -1,0 +1,8 @@
+---
+# defaults file for cloudflare-nginx
+site:
+  fqdn: site.example.com
+  http_redirect: true
+  verify_cloudflare_cert: true  # on, off, optional, optional_no_ca (see Nginx documentation)
+
+copy_webroot: true   # Copy supplied web directory, else use default
