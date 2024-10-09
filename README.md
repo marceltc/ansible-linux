@@ -11,3 +11,7 @@ Tested compatibility with Debian-based systems using `apt` and RPM-based systems
     - Creation of a new user with sudo privileges
     - Transfer of dotfiles and SSH public keys
     - Security hardening (SSH key auth, disable SSH root login, configuring automatic updates)
+- `cloudflare-nginx`: Deployment of an Nginx web server configured for [Cloudflare Authenticated Origin Pulls](https://developers.cloudflare.com/ssl/origin-configuration/authenticated-origin-pull/)
+    - Installation of latest nginx
+    - Copy public/private keys, Cloudflare cert
+    - Deployment of Nginx site configuration
