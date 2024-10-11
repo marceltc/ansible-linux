@@ -1,0 +1,14 @@
+- name: Create directory structure
+  import_tasks: directories.yaml
+  when: certs_only == false
+
+- name: Create root CA
+  import_tasks: root_ca.yaml
+  when: certs_only == false
+
+- name: Create intermediate CA
+  import_tasks: intermediate_ca.yaml
+  when: certs_only == false
+
+- name: Create server certificates
+  import_tasks: certs.yaml

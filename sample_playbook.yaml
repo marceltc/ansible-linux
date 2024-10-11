@@ -1,0 +1,11 @@
+---
+- hosts: webservers 
+  become: true
+  roles:
+    - common
+    - cloudflare-nginx
+  
+- hosts: pki_root
+  become: true
+  roles:
+    - simple-pki

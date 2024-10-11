@@ -1,0 +1,30 @@
+# Protect this file like you would a password!
+---
+# User-defined name for CA (will only be used to name key and cert files)
+pki_name: test
+# Root directory to store root/intermediate CA certs and private keys
+directory: /home/opc/ca
+# Create certs only (only use if using existing PKI below)
+certs_only: false
+
+# Information for generated certs
+certs:
+  # Where to store certs on the servers
+  directory: /home/opc/ca_certs
+  # Domain name (BE SURE TO CONFIGURE HOSTNAMES ON EACH SERVER)
+    # Hostname + domain must match DNS record for certs to work
+  domain: sample.org
+
+# Information for Root CA
+root_ca:
+  secret_private_key_passphrase: test
+  bitLength: 4096
+  commonName: sample-root-CA
+  organizationName: "Sample Org"
+
+# Information for Intermediate CA
+inter_ca:
+  secret_private_key_passphrase: test
+  bitLength: 4096
+  commonName: sample-inter-ca
+  organizationName: "Sample Org"

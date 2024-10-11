@@ -1,0 +1,31 @@
+- name: Create private key with password for Root CA
+  community.crypto.openssl_privatekey:
+    path: "{{ directory }}/root/private/{{ pki_name }}-root-ca.key"
+    passphrase: "{{ root_ca.secret_private_key_passphrase }}"
+    size: "{{ root_ca.bitLength }}"
+    type: RSA
+
+- name: Create CSR for Root CA
+  community.crypto.openssl_csr_pipe:
+    privatekey_path: "{{ directory }}/root/private/{{ pki_name }}-root-ca.key"
+    privatekey_passphrase: "{{ root_ca.secret_private_key_passphrase }}"
+    common_name: "{{ root_ca.commonName }}"
+    organization_name: "{{ root_ca.organizationName }}"
+    use_common_name_for_san: false
+    basic_constraints:
+      - 'CA:TRUE'
+    basic_constraints_critical: true
+    key_usage:
+      - keyCertSign
+      - cRLSign
+      - digitalSignature
+    key_usage_critical: true
+  register: ca_csr
+
+- name: Create self-signed Root CA certificate from CSR
+  community.crypto.x509_certificate:
+    path: "{{ directory }}/root/certs/{{ pki_name }}-root-ca.crt"
+    csr_content: "{{ ca_csr.csr }}"
+    privatekey_path: "{{ directory }}/root/private/{{ pki_name }}-root-ca.key"
+    privatekey_passphrase: "{{ root_ca.secret_private_key_passphrase }}"
+    provider: selfsigned

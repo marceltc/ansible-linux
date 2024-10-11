@@ -1,0 +1,36 @@
+- name: Create private key with password for intermediate CA
+  community.crypto.openssl_privatekey:
+    path: "{{ directory }}/intermediate/private/{{ pki_name }}-inter-ca.key"
+    passphrase: "{{ inter_ca.secret_private_key_passphrase }}"
+    size: "{{ inter_ca.bitLength }}"
+    type: RSA
+
+- name: Create CSR for intermediate CA
+  community.crypto.openssl_csr_pipe:
+    privatekey_path: "{{ directory }}/intermediate/private/{{ pki_name }}-inter-ca.key"
+    privatekey_passphrase: "{{ inter_ca.secret_private_key_passphrase }}"
+    common_name: "{{ inter_ca.commonName }}"
+    organization_name: "{{ inter_ca.organizationName }}"
+    use_common_name_for_san: false
+    basic_constraints:
+      - 'CA:TRUE'
+      - 'pathlen:0'
+    basic_constraints_critical: true
+    key_usage:
+      - digitalSignature
+      - keyEncipherment
+      - keyCertSign
+      - cRLSign
+    key_usage_critical: true
+  register: ca_csr
+
+- name: Sign intermediate certificate with our CA
+  community.crypto.x509_certificate:
+    csr_content: "{{ ca_csr.csr }}"
+    path: "{{ directory }}/intermediate/certs/{{ pki_name }}-inter-ca.crt"
+    provider: ownca
+    ownca_path: "{{ directory }}/root/certs/{{ pki_name }}-root-ca.crt"
+    ownca_privatekey_path: "{{ directory }}/root/private/{{ pki_name }}-root-ca.key"
+    ownca_privatekey_passphrase: "{{ root_ca.secret_private_key_passphrase }}"
+    ownca_not_after: +365d  # valid for one year
+    ownca_not_before: "-1d"  # valid since yesterday

@@ -15,3 +15,7 @@ Tested compatibility with Debian-based systems using `apt` and RPM-based systems
     - Installation of latest nginx
     - Copy public/private keys, Cloudflare cert
     - Deployment of Nginx site configuration
+- `simple-pki`: Deployment of a PKI with a root and intermediate signing CA
+    - Creation of root and intermediate CAs
+    - Deployment of server certificates to an Ansible inventory group
+    - Private keys never leave their respective servers

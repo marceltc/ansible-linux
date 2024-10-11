@@ -1,0 +1,39 @@
+- name: Create base directory 
+  ansible.builtin.file:
+    path: "{{ directory }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Create root certs directory
+  ansible.builtin.file:
+    path: "{{ directory }}/root/certs"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Create root private directory
+  ansible.builtin.file:
+    path: "{{ directory }}/root/private"
+    state: directory
+    owner: root
+    group: root
+    mode: 0700
+
+- name: Create intermediate certs directory
+  ansible.builtin.file:
+    path: "{{ directory }}/intermediate/certs"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Create intermediate private directory
+  ansible.builtin.file:
+    path: "{{ directory }}/intermediate/private"
+    state: directory
+    owner: root
+    group: root
+    mode: 0700

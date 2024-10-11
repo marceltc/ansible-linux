@@ -1,0 +1,56 @@
+- name: Create certs directory
+  ansible.builtin.file:
+    path: "{{ certs.directory }}/certs"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  delegate_to: "{{ item }}"
+  loop: "{{ groups['certificate_group'] }}"
+
+- name: Create private key directory
+  ansible.builtin.file:
+    path: "{{ certs.directory }}/private"
+    state: directory
+    owner: root
+    group: root
+    mode: 0700
+  delegate_to: "{{ item }}"
+  loop: "{{ groups['certificate_group'] }}"
+
+- name: Create private key for new certificate on server
+  community.crypto.openssl_privatekey:
+    path: "{{ certs.directory }}/private/{{ item }}-{{ pki_name }}.key"
+  delegate_to: "{{ item }}"
+  loop: "{{ groups['certificate_group'] }}"
+  run_once: true
+
+- name: Create certificate signing request (CSR) for new certificate
+  community.crypto.openssl_csr_pipe:
+    privatekey_path: "{{ certs.directory }}/private/{{ item }}-{{ pki_name }}.key"
+    subject_alt_name:
+      - "DNS:{{ ansible_facts['hostname'] }}.{{ certs.domain }}"
+  delegate_to: "{{ item }}"
+  loop: "{{ groups['certificate_group'] }}"
+  run_once: true
+  register: csr
+
+- name: Sign certificate with our CA
+  community.crypto.x509_certificate_pipe:
+    csr_content: "{{ csr.results[0].csr }}" 
+    provider: ownca
+    ownca_path: "{{ directory }}/intermediate/certs/{{ pki_name }}-inter-ca.crt" 
+    ownca_privatekey_path: "{{ directory }}/intermediate/private/{{ pki_name }}-inter-ca.key" 
+    ownca_privatekey_passphrase: "{{ inter_ca.secret_private_key_passphrase }}"
+    ownca_not_after: +365d  # valid for one year
+    ownca_not_before: "-1d"  # valid since yesterday
+  run_once: true
+  register: certificate
+
+- name: Write certificate file on server
+  ansible.builtin.copy:
+    dest: "{{ certs.directory }}/certs/{{ item }}-{{ pki_name }}.crt"
+    content: "{{ certificate.certificate }}"
+  delegate_to: "{{ item }}"
+  loop: "{{ groups['certificate_group'] }}"
+  run_once: true

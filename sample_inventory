@@ -1,2 +1,10 @@
 [webservers]
-foo.example.com ansible_ssh_host=1.2.3.4
+foo.example.com ansible_ssh_host=192.0.2.2
+
+# Root and intermediate CA will be deployed here for `simple-pki`
+[pki_root]
+rootca.example.com ansible_ssh_host=192.0.2.3
+
+# Certificates will be deployed here for `simple-pki`
+[certificate_group]
+webserver1 ansible_ssh_host=192.0.2.4
