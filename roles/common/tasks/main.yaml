@@ -14,7 +14,7 @@
     state: present
     create_home: yes
   with_items:
-    - marcel
+    - "{{ username }}"
 
 - name: Add users to sudoers
   ansible.builtin.lineinfile:
@@ -24,7 +24,7 @@
     state: present
     validate: 'visudo -cf %s'
   with_items:
-    - marcel
+    - "{{ username }}"
 
 - name: Copy user's authorized_keys from template
   ansible.builtin.copy:
@@ -34,7 +34,7 @@
     group: "{{ item }}"
     mode: 0600
   with_items:
-    - marcel
+    - "{{ username }}"
 
 # SSH configuration
 - name: Disable password authentication
@@ -61,4 +61,4 @@
     mode: 0644
   # Users to be configured
   with_items:
-    - marcel
+    - "{{ username }}"
