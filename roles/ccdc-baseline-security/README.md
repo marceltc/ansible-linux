@@ -13,3 +13,5 @@ The tasks it performs are the following:
 - Common SSHD hardening
 
 View the `defaults` directory to customize the role's behaviors.
+
+Additionally, the `removekeys.yaml` file is an Ansible task to remove SSH keys from all users except a designated admin user.
